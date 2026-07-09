@@ -4,11 +4,38 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Repo Pulse</title>
+<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <main>
   <h1>Repo Pulse</h1>
-  <p>Enter a public GitHub repository to see its vital signs. Dashboard lands in a later milestone.</p>
+  <p class="sub">Vital signs for any public GitHub repository.</p>
+
+  <form id="repo-form" autocomplete="off">
+    <input id="repo-input" placeholder="owner/repo — e.g. anthropics/anthropic-sdk-python"
+           required pattern="[^/\s]+/[^/\s]+" aria-label="Repository (owner/repo)">
+    <button type="submit">Check pulse</button>
+  </form>
+
+  <p id="status" role="status" hidden></p>
+
+  <section id="dashboard" hidden>
+    <div id="pulse-banner" class="banner"></div>
+    <h2 id="repo-name"></h2>
+    <p id="repo-description" class="sub"></p>
+    <div class="cards">
+      <div class="card"><span class="label">Stars</span><span class="value" id="stat-stars"></span></div>
+      <div class="card"><span class="label">Forks</span><span class="value" id="stat-forks"></span></div>
+      <div class="card"><span class="label">Watchers</span><span class="value" id="stat-watchers"></span></div>
+      <div class="card"><span class="label">Open issues</span><span class="value" id="stat-issues"></span></div>
+      <div class="card"><span class="label">Open PRs</span><span class="value" id="stat-prs"></span></div>
+      <div class="card"><span class="label">Commits (30d)</span><span class="value" id="stat-commits"></span></div>
+      <div class="card wide"><span class="label">Latest release</span><span class="value" id="stat-release"></span></div>
+      <div class="card wide"><span class="label">License</span><span class="value" id="stat-license"></span></div>
+    </div>
+    <p><a id="repo-link" target="_blank" rel="noopener">View on GitHub</a></p>
+  </section>
 </main>
+<script src="/static/app.js"></script>
 </body>
 </html>

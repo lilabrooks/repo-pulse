@@ -11,6 +11,10 @@ mappings:
       - "docs/specs/api.md"
       - "docs/adr/0001-python-web-stack.md"
 
+  - source: "static/**"
+    docs:
+      - "docs/specs/frontend.md"
+
   - source: "requirements.txt"
     docs:
       - "docs/adr/0001-python-web-stack.md"
