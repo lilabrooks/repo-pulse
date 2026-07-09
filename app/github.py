@@ -23,6 +23,10 @@ class RateLimited(Exception):
     """GitHub rejected the request because the rate limit is exhausted."""
 
 
+class BadCredentials(Exception):
+    """GitHub rejected the configured GITHUB_TOKEN (401)."""
+
+
 def make_client(transport: httpx.BaseTransport | None = None) -> httpx.Client:
     headers = {
         "Accept": "application/vnd.github+json",
@@ -37,16 +41,22 @@ def make_client(transport: httpx.BaseTransport | None = None) -> httpx.Client:
     )
 
 
-def _get(client: httpx.Client, path: str, **params) -> httpx.Response:
-    response = client.get(path, params=params or None)
+def _checked(response: httpx.Response) -> httpx.Response:
+    path = response.request.url.path
     if response.status_code == 404:
         raise RepoNotFound(path)
+    if response.status_code == 401:
+        raise BadCredentials(path)
     if response.status_code in (403, 429) and response.headers.get(
         "x-ratelimit-remaining"
     ) == "0":
         raise RateLimited(path)
     response.raise_for_status()
     return response
+
+
+def _get(client: httpx.Client, path: str, **params) -> httpx.Response:
+    return _checked(client.get(path, params=params or None))
 
 
 def _open_pr_count(client: httpx.Client, owner: str, repo: str) -> int:
@@ -81,10 +91,7 @@ def _commits_last_window(client: httpx.Client, owner: str, repo: str) -> int:
     )
     if response.status_code == 409:  # empty repository
         return 0
-    if response.status_code == 404:
-        raise RepoNotFound(f"{owner}/{repo}")
-    response.raise_for_status()
-    return len(response.json())
+    return len(_checked(response).json())
 
 
 def fetch_summary(owner: str, repo: str, client: httpx.Client | None = None) -> dict:

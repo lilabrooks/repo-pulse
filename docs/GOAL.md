@@ -56,4 +56,4 @@ verification passes, and record progress in `docs/log.md`.
 - [x] GitHub summary API: `GET /api/repo/{owner}/{repo}` returns the normalized summary per `docs/specs/api.md`; 404 and rate-limit errors mapped; tests fully mocked. Verify: `make test`.
 - [x] Frontend dashboard: form plus pulse cards rendering the summary with loading and error states, served from `/`. Verify: `make test`; index page and static assets respond 200 and the dashboard renders against the live API in a manual browser check.
 - [x] Rate-limit friendliness: in-memory TTL cache on repo summaries and optional `GITHUB_TOKEN` from the environment with a committed `.env.example` (cache decision via proposed ADR). Verify: `make test` cache tests pass and `git check-ignore .env` succeeds.
-- [ ] Polish: README quickstart (clean-clone to running dashboard), pulse verdict edge cases (no releases, empty repos, archived repos). Verify: `make test`; README steps reproduce on a clean checkout.
+- [x] Polish: README quickstart (clean-clone to running dashboard), pulse verdict edge cases (no releases, empty repos, archived repos). Verify: `make test`; README steps reproduce on a clean checkout.

@@ -1,6 +1,5 @@
 """Offline tests for /api/repo/{owner}/{repo}: GitHub is fully mocked."""
 
-import json
 from datetime import datetime, timedelta, timezone
 
 import httpx
@@ -12,6 +11,7 @@ from app.main import app
 client = TestClient(app)
 
 RECENT_PUSH = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
+QUIET_PUSH = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
 OLD_PUSH = (datetime.now(timezone.utc) - timedelta(days=400)).isoformat()
 
 REPO_INFO = {
@@ -50,6 +50,39 @@ def fake_github(request: httpx.Request) -> httpx.Response:
         if path.endswith("/commits"):
             return httpx.Response(200, json=[])
         return httpx.Response(200, json={**REPO_INFO, "full_name": "octo/norelease"})
+    if path.startswith("/repos/octo/empty"):
+        if path.endswith("/pulls"):
+            return httpx.Response(200, json=[])
+        if path.endswith("/releases/latest"):
+            return httpx.Response(404, json={"message": "Not Found"})
+        if path.endswith("/commits"):
+            return httpx.Response(409, json={"message": "Git Repository is empty."})
+        return httpx.Response(
+            200,
+            json={**REPO_INFO, "full_name": "octo/empty", "open_issues_count": 0, "pushed_at": None},
+        )
+    if path.startswith("/repos/octo/attic"):
+        if path.endswith("/pulls"):
+            return httpx.Response(200, json=[])
+        if path.endswith("/releases/latest"):
+            return httpx.Response(200, json=RELEASE)
+        if path.endswith("/commits"):
+            return httpx.Response(200, json=[{"sha": "a"}])
+        return httpx.Response(200, json={**REPO_INFO, "full_name": "octo/attic", "archived": True})
+    if path.startswith("/repos/octo/slowdown"):
+        if path.endswith("/commits"):
+            return httpx.Response(
+                403,
+                json={"message": "API rate limit exceeded"},
+                headers={"x-ratelimit-remaining": "0"},
+            )
+        if path.endswith("/pulls"):
+            return httpx.Response(200, json=[])
+        if path.endswith("/releases/latest"):
+            return httpx.Response(404, json={"message": "Not Found"})
+        return httpx.Response(200, json={**REPO_INFO, "full_name": "octo/slowdown"})
+    if path.startswith("/repos/octo/badtoken"):
+        return httpx.Response(401, json={"message": "Bad credentials"})
     if path.startswith("/repos/octo/missing"):
         return httpx.Response(404, json={"message": "Not Found"})
     if path.startswith("/repos/octo/limited"):
@@ -103,6 +136,49 @@ def test_rate_limit_maps_to_503_with_guidance(monkeypatch):
     response = client.get("/api/repo/octo/limited")
     assert response.status_code == 503
     assert "GITHUB_TOKEN" in response.json()["detail"]
+
+
+def test_empty_repo_is_dormant_with_no_pushes(monkeypatch):
+    use_fake_github(monkeypatch)
+    response = client.get("/api/repo/octo/empty")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["activity"] == {"commits_last_30d": 0, "last_push": None}
+    assert data["release"] is None
+    assert data["pulse"]["verdict"] == "dormant"
+    assert "no recorded pushes" in data["pulse"]["reasons"]
+
+
+def test_archived_repo_verdict_overrides_recent_activity(monkeypatch):
+    use_fake_github(monkeypatch)
+    response = client.get("/api/repo/octo/attic")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["repo"]["archived"] is True
+    assert data["pulse"]["verdict"] == "archived"
+    assert data["pulse"]["reasons"] == ["repository is archived and read-only"]
+
+
+def test_rate_limit_during_commit_fetch_maps_to_503(monkeypatch):
+    use_fake_github(monkeypatch)
+    response = client.get("/api/repo/octo/slowdown")
+    assert response.status_code == 503
+    assert "GITHUB_TOKEN" in response.json()["detail"]
+
+
+def test_bad_token_maps_to_502_with_guidance(monkeypatch):
+    use_fake_github(monkeypatch)
+    response = client.get("/api/repo/octo/badtoken")
+    assert response.status_code == 502
+    assert "GITHUB_TOKEN" in response.json()["detail"]
+
+
+def test_pulse_quiet_when_push_within_90_days():
+    summary = {
+        "repo": {"archived": False},
+        "activity": {"last_push": QUIET_PUSH, "commits_last_30d": 0},
+    }
+    assert pulse.verdict(summary)["verdict"] == "quiet"
 
 
 def test_pulse_archived_overrides_activity():

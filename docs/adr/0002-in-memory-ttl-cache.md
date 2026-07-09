@@ -20,7 +20,7 @@ Unauthenticated GitHub REST calls are limited to 60 requests/hour per IP, and on
 # Decision
 
 - Cache normalized summaries in a process-local dict keyed by `owner/repo`, with a 300-second TTL and a small time-injection seam so tests control expiry. No size cap: a local single-user dashboard cannot realistically grow it beyond a handful of entries.
-- Support an optional `GITHUB_TOKEN` environment variable (5,000 requests/hour when set). The token is attached as a Bearer header at client construction, documented in a committed `.env.example`, and never tracked: `.env` and `.env.*` are git-ignored (with `!.env.example` kept trackable), per the security guardrail.
+- Support an optional `GITHUB_TOKEN` environment variable (5,000 requests/hour when set). The token is attached as a Bearer header at client construction, documented in a committed `.env.example`, and never tracked: `.env` and `.env.*` are git-ignored (with `!.env.example` kept trackable), per the security guardrail. `make run` sources `.env` when present, so the copy-and-fill flow documented in `.env.example` reaches the server environment; an invalid token maps to HTTP 502 with guidance instead of an unhandled 500.
 
 Alternatives considered:
 

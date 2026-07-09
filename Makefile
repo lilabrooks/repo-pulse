@@ -14,4 +14,5 @@ test: venv
 	$(PY) -m pytest -q
 
 run: venv
+	set -a; [ -f .env ] && . ./.env; set +a; \
 	$(VENV)/bin/uvicorn app.main:app --port 8000

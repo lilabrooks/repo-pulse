@@ -38,6 +38,14 @@ def repo_summary(owner: str, repo: str) -> dict:
                 "GITHUB_TOKEN for a higher limit"
             ),
         )
+    except github.BadCredentials:
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "GitHub rejected the configured GITHUB_TOKEN; "
+                "fix or unset it and restart"
+            ),
+        )
     summary["pulse"] = pulse.verdict(summary)
     cache.put(key, summary)
     return summary

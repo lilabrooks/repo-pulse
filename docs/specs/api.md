@@ -56,7 +56,8 @@ Contract notes:
 Errors:
 
 - Unknown or private repository -> HTTP 404, `{"detail": "repository not found"}`.
-- GitHub rate limit exhausted -> HTTP 503 with guidance naming `GITHUB_TOKEN`.
+- GitHub rate limit exhausted (on any of the upstream calls) -> HTTP 503 with guidance naming `GITHUB_TOKEN`.
+- Invalid `GITHUB_TOKEN` (GitHub answers 401) -> HTTP 502 telling the operator to fix or unset the token.
 
 ## GET /
 
