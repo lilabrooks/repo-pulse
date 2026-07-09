@@ -52,7 +52,7 @@ Ordered backlog. When asked to continue without a specific task, Claude Code
 takes the first unchecked milestone. Check a milestone off only when its
 verification passes, and record progress in `docs/log.md`.
 
-- [ ] Skeleton: backend app serving `/api/health` and the static index shell, with test harness and Makefile (`make test`, `make run`). Verify: `make test` passes and a live `curl /api/health` returns `{"status":"ok"}`.
+- [x] Skeleton: backend app serving `/api/health` and the static index shell, with test harness and Makefile (`make test`, `make run`). Verify: `make test` passes and a live `curl /api/health` returns `{"status":"ok"}`.
 - [ ] GitHub summary API: `GET /api/repo/{owner}/{repo}` returns the normalized summary per `docs/specs/api.md`; 404 and rate-limit errors mapped; tests fully mocked. Verify: `make test`.
 - [ ] Frontend dashboard: form plus pulse cards rendering the summary with loading and error states, served from `/`. Verify: `make test`; index page and static assets respond 200 and the dashboard renders against the live API in a manual browser check.
 - [ ] Rate-limit friendliness: in-memory TTL cache on repo summaries and optional `GITHUB_TOKEN` from the environment with a committed `.env.example` (cache decision via proposed ADR). Verify: `make test` cache tests pass and `git check-ignore .env` succeeds.

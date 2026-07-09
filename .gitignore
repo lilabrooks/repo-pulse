@@ -1,3 +1,7 @@
 .claude/settings.local.json
 CLAUDE.local.md
 .okf-kit-backups/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
