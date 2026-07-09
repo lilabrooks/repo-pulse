@@ -25,8 +25,11 @@ make run
 The first run creates `.venv/` and installs the four dependencies (FastAPI,
 uvicorn, httpx, pytest), then serves the app on port 8000:
 
-- Dashboard: open <http://localhost:8000> and enter a repository such as
-  `psf/requests`.
+- Dashboard: open <http://localhost:8000> and enter a repository. The form
+  accepts `owner/repo`, `github.com/owner/repo`, or a full
+  `https://github.com/owner/repo` URL (extra path, query, and a trailing `.git`
+  are stripped). A non-GitHub URL is rejected with a hint, since repository data
+  comes from the GitHub REST API only.
 - Health check: `curl http://localhost:8000/api/health` returns
   `{"status":"ok"}`.
 - Summary API: `curl http://localhost:8000/api/repo/psf/requests` returns the
@@ -79,3 +82,21 @@ returns 503 with guidance. The dashboard shows both as inline errors.
 | `docs/GOAL.md` | goal, success criteria, milestone backlog |
 | `docs/specs/` | API and frontend contracts |
 | `docs/adr/` | architecture decision records |
+
+## Origins
+
+This repository was scaffolded from the
+[claude-okf-repo-kit](https://github.com/lilabrooks/claude-okf-repo-kit) — the
+OKF workflow starter that provides `CLAUDE.md`, the `docs/` knowledge bundle
+(goal, specs, ADRs, log), and the `.claude/` hooks. Everything under `app/`,
+`static/`, and `tests/` was built on top of that scaffold.
+
+One notable enhancement beyond the original milestones: the dashboard input
+parser (`static/app.js`) was widened to accept full GitHub URLs and
+`github.com/owner/repo`, not just a bare `owner/repo` slug — it strips the
+scheme, a leading `www.`, the `github.com` host, a trailing `.git`, and any
+extra path/query/fragment before calling the API, and rejects non-GitHub hosts
+with a clear message. Extending that to resolve arbitrary project homepages
+(e.g. a product landing page) to their repository is captured as a proposed,
+unimplemented scope change in
+[docs/adr/0003](docs/adr/0003-homepage-to-repo-resolution.md).
