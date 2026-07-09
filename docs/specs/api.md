@@ -62,6 +62,10 @@ Errors:
 
 Serves the dashboard `static/index.html`. Static assets are mounted under `/static/`.
 
+# Caching and rate limits
+
+Successful summaries are cached in process memory for 300 seconds per `owner/repo` (ADR 0002), so repeated queries cost zero GitHub calls and responses may be up to 5 minutes stale. Errors are never cached. An optional `GITHUB_TOKEN` environment variable (see `.env.example`) raises the upstream rate limit; it is attached as a Bearer header and must never appear in tracked files.
+
 # Testability
 
 All GitHub access flows through `app.github.make_client()`, so tests inject an `httpx.MockTransport` and the suite runs with no network.

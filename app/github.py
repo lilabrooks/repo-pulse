@@ -4,6 +4,7 @@ All network access goes through the httpx.Client built by make_client(), so
 tests inject an httpx.MockTransport and the suite runs fully offline.
 """
 
+import os
 import re
 from datetime import datetime, timedelta, timezone
 
@@ -27,6 +28,10 @@ def make_client(transport: httpx.BaseTransport | None = None) -> httpx.Client:
         "Accept": "application/vnd.github+json",
         "User-Agent": USER_AGENT,
     }
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        # Optional: raises the GitHub rate limit (ADR 0002). Env-only, never tracked.
+        headers["Authorization"] = f"Bearer {token}"
     return httpx.Client(
         base_url=API_ROOT, headers=headers, timeout=10, transport=transport
     )

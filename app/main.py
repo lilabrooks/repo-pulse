@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import github, pulse
+from app import cache, github, pulse
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
@@ -21,7 +21,11 @@ def health() -> dict:
 
 @app.get("/api/repo/{owner}/{repo}")
 def repo_summary(owner: str, repo: str) -> dict:
-    """Normalized repository summary per docs/specs/api.md."""
+    """Normalized repository summary per docs/specs/api.md (cached, ADR 0002)."""
+    key = f"{owner}/{repo}"
+    cached = cache.get(key)
+    if cached is not None:
+        return cached
     try:
         summary = github.fetch_summary(owner, repo)
     except github.RepoNotFound:
@@ -35,6 +39,7 @@ def repo_summary(owner: str, repo: str) -> dict:
             ),
         )
     summary["pulse"] = pulse.verdict(summary)
+    cache.put(key, summary)
     return summary
 
 
