@@ -14,7 +14,7 @@ The dashboard is hand-written static HTML/CSS/JS under `static/`, served by the 
 
 # Behavior
 
-- A single form accepts `owner/repo` (validated client-side as two non-empty segments) and fetches `GET /api/repo/{owner}/{repo}` with both segments URL-encoded.
+- A single form accepts a repository as bare `owner/repo`, `github.com/owner/repo`, or a full `https://github.com/owner/repo[/...]` URL. Client-side parsing strips the scheme, a leading `www.`, any `github.com` host, a trailing `.git`, and any path/query/fragment beyond `owner/repo`, then fetches `GET /api/repo/{owner}/{repo}` with both segments URL-encoded. A non-GitHub host (e.g. `example.com/a/b`) is rejected with a clear message rather than mis-parsed, since repository data comes from the GitHub REST API only. Fewer than two segments is rejected as `owner/repo`.
 - States: idle (form only), loading (status line), error (API `detail` message shown verbatim; network failure shows a "backend not running" hint), rendered (dashboard visible).
 - Rendered view: a pulse banner colored by verdict (`active` green, `quiet` amber, `dormant` red, `archived` gray) with the verdict reasons, stat cards (stars, forks, watchers, open issues, open PRs, commits in 30 days, latest release or "none", license or "none detected"), and a link to the repository on GitHub.
 - Dark and light color schemes follow `prefers-color-scheme`.
