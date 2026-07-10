@@ -10,11 +10,11 @@ deciders: [Lila Brooks]
 
 # Master objective
 
-Current state: Freshly installed OKF workflow repo; no application code yet. Repo Pulse is being built here: a local web dashboard for the health of public GitHub repositories.
+Current state: Repo Pulse v1 is built and its goal is met: every milestone in `docs/GOAL.md` is checked and the success criteria pass. Three proposed ADRs await owner review (`bash scripts/okf pending`).
 
 Target state: A Python backend serving a JSON API (`/api/health`, `/api/repo/{owner}/{repo}`) plus a static HTML/CSS/JS dashboard, consuming the GitHub REST API v3 with mocked-offline tests, an in-memory TTL cache, and optional `GITHUB_TOKEN` from the environment.
 
-Constraints: Follow `docs/GOAL.md` and the specs in `docs/specs/` (API contract in `docs/specs/api.md` once it lands) and all accepted ADRs in `docs/adr/`. Python 3.12+, no Node toolchain, no database, secrets only via environment.
+Constraints: Follow `docs/GOAL.md`, the specs in `docs/specs/` (API contract in `docs/specs/api.md`, frontend contract in `docs/specs/frontend.md`), and all accepted ADRs in `docs/adr/`. Python 3.12+, no Node toolchain, no database, secrets only via environment.
 
 Done when: `make test` passes offline, `make run` serves the dashboard on `localhost:8000`, every milestone in `docs/GOAL.md` is checked with its verification, and `git check-ignore .env` succeeds.
 
@@ -34,7 +34,8 @@ These imports resolve when Claude Code loads this file, so the goal and the know
 - When asked to continue or iterate without a specific task, take the first unchecked milestone and run it through the task workflow below. When its verification passes, check it off, log it, and continue with the next unchecked milestone. Stop when the backlog is empty, a decision reserved for me comes up, or I say stop.
 - Resuming after an interruption: at session start, if the working tree holds uncommitted changes, treat them as in-flight work from a cut-off session, not a clean slate. Reconcile them against the first unchecked milestone and the newest `docs/log.md` entry, then finish that work or back it out before taking a new milestone.
 - Check a milestone off only when its stated verification passes, then add a dated `docs/log.md` entry.
-- When every milestone is checked and the success criteria pass, report that the goal is met and stop. Don't invent new milestones; adding scope is my decision.
+- Before reporting the goal met, run an acceptance pass: exercise the deliverable through its primary interface the way a first-time user would — a clean checkout, the README quickstart, and the goal's example interactions plus obvious variants and wrong inputs (a pasted URL instead of a bare id, a missing argument, an empty value). Tests prove the contract; this pass proves the experience. Fix in-scope breakage before declaring the goal met, record what was exercised in `docs/log.md`, and carry out-of-scope findings into the candidate milestones below.
+- When every milestone is checked, the success criteria pass, and the acceptance pass is clean, report that the goal is met and stop building. List any ADRs still `status: proposed` in that report (`bash scripts/okf pending`) so I can review them. Then offer candidate next milestones for me to choose from: known items in `docs/log.md`, revisit triggers in accepted ADRs, findings from the acceptance pass, and extensions that fit the stated non-goals — with options that would first need me to revise a non-goal listed separately. Proposing is not adding: nothing enters `docs/GOAL.md` without my confirmation, and at my direction you draft the chosen milestones with their verifications.
 - When the code and the goal disagree, flag it. Changing `docs/GOAL.md` (scope, success criteria, milestone order) is my decision.
 - If `docs/GOAL.md` is missing, create it with these sections before the first milestone task: Goal (kind, problem, solution), Target state, Success criteria, Non-goals, Constraints, Milestones. If it, or this file, is missing content or still contains unfilled template brackets, run the goal interview below before iterating.
 
@@ -44,12 +45,13 @@ When `docs/GOAL.md` or this file still needs filling, gather what's missing as a
 
 1. What I'm building and for whom → Kind and Problem. Example: a CLI that turns Figma exports into design tokens, for the frontend team → Kind: utility.
 2. What exists when it's done, concretely → Target state. Example: `tokens build` converts every Figma export in the fixtures folder into JSON and CSS variables.
-3. The mechanical verification — the test command and observable checks → Success criteria and Verification commands. Example: `npm test` passes, and the CLI run on fixture A reproduces its golden output exactly.
-4. What this repo deliberately won't do → Non-goals. Example: no GUI, no Sketch support, no design-tool plugins.
-5. Which stack, platform, and dependency choices are fixed up front, and which you may decide later through proposed ADRs → Constraints. Example: Node 20 is fixed; the token-storage format is yours to decide via a proposed ADR.
-6. The first shippable slice and how to check it → the first milestone. Example: parse one fixture and emit JSON, verified by the parser test suite passing.
+3. The example interactions — 2-3 realistic examples of what a user will actually give the primary interface, including at least one messy or wrong one → spec examples and test cases. For an app, what users type, paste, or click; for a utility, sample command lines; for a service, sample requests. Example: designers drag in `tokens-export (3).fig.json` with spaces in the name, or point at a folder instead of a file — the folder case must produce a clear error, not a stack trace.
+4. The mechanical verification — the test command and observable checks → Success criteria and Verification commands. Example: `npm test` passes, and the CLI run on fixture A reproduces its golden output exactly. In a new repo with no toolchain yet, the first milestone establishes these as real commands — conventionally `make test` and `make run`, or the stack-native equivalent — recorded under Verification commands.
+5. What this repo deliberately won't do → Non-goals. Example: no GUI, no Sketch support, no design-tool plugins.
+6. Which stack, platform, and dependency choices are fixed up front, and which you may decide later through proposed ADRs → Constraints. Example: Node 20 is fixed; the token-storage format is yours to decide via a proposed ADR.
+7. The first shippable slice and how to check it → the first milestone. Example: parse one fixture and emit JSON, verified by the parser test suite passing.
 
-Push back on answers that can't be checked mechanically — "migrate the API to GraphQL" is a direction, not a done state; keep asking until each answer would let you verify progress yourself. Draft the remaining milestones from my answers and confirm the finished `docs/GOAL.md` with me before starting the loop. In an existing codebase, propose answers from the code first — detected test commands, structure, conventions — and let me correct them rather than asking cold. Manual editing stays a valid alternative; never overwrite goal content I wrote by hand.
+Push back on answers that can't be checked mechanically — "migrate the API to GraphQL" is a direction, not a done state; keep asking until each answer would let you verify progress yourself. Draft the remaining milestones from my answers — ending, by default, with a README-quickstart milestone whose verification is reproducing the quickstart on a clean checkout; I can drop it — and confirm the finished `docs/GOAL.md` with me before starting the loop. In an existing codebase, propose answers from the code first — detected test commands, structure, conventions — and let me correct them rather than asking cold. Manual editing stays a valid alternative; never overwrite goal content I wrote by hand.
 
 # Docs bootstrap
 
@@ -84,7 +86,7 @@ Every new spec or ADR file gets YAML frontmatter with at least a `type:` field (
 
 # Agent config (committed to the repo)
 
-- `.claude/settings.json` — shared project settings, including the Stop hook that enforces docs sync. Committed.
+- `.claude/settings.json` — shared project settings: the guardrail hooks plus permission rules that deny reading local `.env` files. Committed.
 - `.claude/hooks/check-docs-sync.sh` — Stop hook, invoked via `bash` so no executable bit is needed. Committed. Don't move, rename, or disable it; if it blocks a stop, do the doc update it asks for.
 - `.claude/hooks/check-okf-version.sh` — SessionStart hook, invoked via `bash`. Committed. Reports OKF spec version drift; act per the OKF version policy above.
 - `scripts/okf` — repo-local OKF helper command. Committed. Use it for stale mapping checks, spec drafts, and ADR suggestions.
@@ -92,13 +94,19 @@ Every new spec or ADR file gets YAML frontmatter with at least a `type:` field (
 - `.claude/settings.local.json` — personal overrides only. Never commit it.
 - `CLAUDE.local.md` — personal per-repo memory. Never commit it.
 
-During bootstrap, ensure `.gitignore` contains these 3 entries (the same set the installers append and `verify-install` requires):
+During bootstrap, ensure `.gitignore` contains these entries (the same set the installers append and `verify-install` requires — `!.env.example` keeps the sample env file trackable):
 
 ```
 .claude/settings.local.json
 CLAUDE.local.md
 .okf-kit-backups/
+.DS_Store
+.env
+.env.*
+!.env.example
 ```
+
+When the stack is chosen (typically the first milestone), also append its standard ignores — virtualenv or dependency directories, build output, caches, bytecode — before those files first appear in the working tree.
 
 Everything else agent-related is committed: `CLAUDE.md`, `.claude/settings.json`, `.claude/hooks/`, `scripts/okf`, and all of `/docs`.
 
@@ -112,13 +120,20 @@ A SessionStart hook compares `okf_version` in `docs/index.md` against the latest
 
 Never modify spec or ADR content as part of a version migration; only formatting, frontmatter, and structure.
 
+# Kit version policy
+
+The same SessionStart hook also compares `kit_version` in `docs/index.md` — stamped by the kit installers — against the kit's published `VERSION` on the source kit's main branch. When it reports drift, tell me and recommend re-running `scripts/update-existing-repo` from an up-to-date clone of the kit. The updater never overwrites: it backs up the scripts it replaces and writes numbered candidates (such as `CLAUDE.2.md`) for changed templates; reviewing and merging candidates is my decision. If `docs/index.md` carries no `kit_version`, the hook stays silent and this policy is inactive.
+
 # OKF helper commands
 
 `scripts/okf` is a repo-local Bash helper installed by this kit. It is not an official OKF CLI, not a global command, and not a prompt. Always run it with `bash scripts/okf ...` unless this repo intentionally wraps it another way.
 
-- `bash scripts/okf check-stale` — run after changing source files. If it reports stale mappings, update the mapped spec/ADR or add a dated `/docs/log.md` rationale explaining why no knowledge file changed.
-- `bash scripts/okf draft [paths...]` — generate fact-based drafts under `/docs/specs/_drafts/`. Treat drafts as scaffolding: verify them, rewrite them into human-readable commitments, then move promoted specs into `/docs/specs/` and update `/docs/specs/index.md`.
+- `bash scripts/okf check-stale` — run after changing source files. If it reports stale mappings, update the mapped spec/ADR or add a dated `/docs/log.md` rationale explaining why no knowledge file changed. It also lists changed files with no mapping — non-blocking; add mappings as those areas gain their governing docs.
+- `bash scripts/okf draft [paths...]` — generate fact-based drafts under `/docs/specs/_drafts/`. Most useful in existing codebases with undocumented modules. Treat drafts as scaffolding: verify them, rewrite them into human-readable commitments, then move promoted specs into `/docs/specs/` and update `/docs/specs/index.md`.
 - `bash scripts/okf adr-suggest` — run when a change may include an architecture decision. Create a new ADR only when the suggestion points to a real decision: dependency, persistence, cache/queue/worker, auth/security/privacy, API contract, deployment, or ownership boundary.
+- `bash scripts/okf new-adr <slug> [title]` — scaffold the next-numbered ADR in `/docs/adr/` with `status: proposed` frontmatter, the required sections, and an index entry. The scaffold is a skeleton, not a decision: fill every bracket before implementing against it.
+- `bash scripts/okf new-spec <slug> [title]` — scaffold a spec in `/docs/specs/` with an index entry, then fill it in and map the governed source in `docs/okf-map.yml`.
+- `bash scripts/okf pending` — list ADRs still `status: proposed`, plus any missing a status field. Run it when reporting the goal met, and whenever I ask what's awaiting my review.
 
 # Grounding rules (docs are the source of truth)
 
@@ -132,7 +147,8 @@ Never modify spec or ADR content as part of a version migration; only formatting
 I provide the goal, constraints, and guardrails; you make the decisions that reach the goal and record them where I can review them.
 
 - Implementation choices that stay inside existing specs, accepted ADRs, and the guardrails below are yours to make without asking.
-- Decision-shaped changes — dependency, persistence, cache/queue/worker, auth/security/privacy, API contract, deployment, ownership boundary — start with a new ADR marked `status: proposed` in its frontmatter, covering context, decision, alternatives considered, consequences, and a rollback or revisit trigger. Implement against the proposed ADR, then flag it in your summary and in `docs/log.md`; I accept it, ask for changes, or revert.
+- Decision-shaped changes — dependency, persistence, cache/queue/worker, auth/security/privacy, API contract, deployment, ownership boundary — start with a new ADR marked `status: proposed` in its frontmatter (scaffold it with `bash scripts/okf new-adr <slug> "Title"`), covering context, decision, alternatives considered, consequences, and a rollback or revisit trigger. Implement against the proposed ADR, then flag it in your summary and in `docs/log.md`; I accept it, ask for changes, or revert.
+- ADR review mechanics: I find pending decisions by scanning `/docs/adr/` for `status: proposed`. Accepting flips the status to `accepted`, and the ADR then binds future work; rejecting reverts the work built on it, per its rollback trigger. When I tell you to accept or reject a proposed ADR, make the status edit and any reversal yourself and log the outcome in `docs/log.md` — the decision is mine, the edit can be yours.
 - Reserved for me: changing `docs/GOAL.md`, superseding or contradicting an accepted ADR, and the actions the guardrails below mark as needing my go-ahead. When work can't proceed without one of these, record the blocker in `docs/log.md` and ask instead of working around it.
 
 # Guardrails (hold in every session)
@@ -146,6 +162,8 @@ Tests and verification:
 Security:
 
 - Never write secrets — API keys, tokens, passwords, private keys, connection strings — into tracked files. Read them from the environment, and before creating an env or credentials file, confirm `.gitignore` covers it.
+- Document required and optional environment variables in a committed `.env.example` holding placeholder values only; real values live in the git-ignored `.env`. The installers ignore `.env` and `.env.*` while keeping `.env.example` trackable.
+- The shipped settings deny reading `.env` files so secrets stay out of conversation context. Never remove, weaken, or work around that denial; if a task seems to require reading `.env`, stop and ask me.
 - Treat changes touching auth, sessions, input parsing, file paths, network exposure, crypto, or permissions as security-sensitive: validate input at trust boundaries, use parameterized queries, grant least privilege, and run `bash scripts/okf adr-suggest`; when it flags the change, record the decision as a proposed ADR.
 - New runtime dependencies are decision-shaped: the proposed ADR names the alternatives considered and the maintenance and security tradeoff.
 
