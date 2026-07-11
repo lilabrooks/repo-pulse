@@ -1,5 +1,9 @@
 # Log
 
+## 2026-07-11
+
+- Added the MIT license for the repository (`LICENSE`) with 2026 Lila Brooks copyright, and linked it from the README. No app behavior or public API contract changed.
+
 ## 2026-07-09
 
 - Kit upgrade to claude-okf-repo-kit 0.1.1 (config and docs only, no app code). Live immediately: `.claude/settings.json` merged with `permissions.deny` rules (`Read(./.env)`, `Read(./**/.env)`) so secrets in local env files stay out of Claude Code's context mechanically; refreshed `scripts/okf` (new `new-adr`/`new-spec` scaffolds, `pending` review inbox, non-blocking unmapped-file note in `check-stale`) and SessionStart hook (now also reports kit-version drift); `.DS_Store` appended to `.gitignore`. Merged from the updater's review candidates: `docs/index.md` gained the `kit_version: 0.1.1` stamp (activates drift reporting) plus Log and Source-map links; `CLAUDE.md` ported to the 0.1.1 template — filled objective, constraints, and verification commands preserved, Current state refreshed to goal-met — gaining the example-interactions interview question, the pre-goal-met acceptance pass, the post-goal proposal protocol and ADR review mechanics, the kit-version policy, and the `.env.example`/read-denial guardrails. Remaining starter candidates deleted (repo files win); backups under `.okf-kit-backups/`. Verified: `make test` passes offline and `verify-install` passes with the stamp present. Three proposed ADRs (0001-0003) still await owner review via `bash scripts/okf pending`.

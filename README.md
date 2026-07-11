@@ -83,6 +83,10 @@ returns 503 with guidance. The dashboard shows both as inline errors.
 | `docs/specs/` | API and frontend contracts |
 | `docs/adr/` | architecture decision records |
 
+## License
+
+MIT. See [LICENSE](LICENSE).
+
 ## Origins
 
 This repository was scaffolded from the
