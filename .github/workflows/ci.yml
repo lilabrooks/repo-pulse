@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Run tests
+        run: make test
+
+      - name: Compile Python sources
+        run: .venv/bin/python -m compileall -q app tests
+
+      - name: Check OKF mappings for pull requests
+        if: github.event_name == 'pull_request'
+        env:
+          OKF_BASE: ${{ github.event.pull_request.base.sha }}
+        run: bash scripts/okf check-stale
+
+      - name: Check OKF mappings for pushes
+        if: github.event_name == 'push'
+        env:
+          OKF_BASE: ${{ github.event.before }}
+        run: bash scripts/okf check-stale
+
+      - name: Check OKF mappings for manual runs
+        if: github.event_name == 'workflow_dispatch'
+        run: bash scripts/okf check-stale

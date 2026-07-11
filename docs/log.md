@@ -2,6 +2,10 @@
 
 ## 2026-07-11
 
+- Updated the README badges to mirror the Skywatch two-row style, added the Claude Code provenance badge, and added an Origins note that Codex assisted with licensing, dependency pinning, Dependabot, CI, badges, and repository metadata.
+- Accepted ADR 0004 (GitHub Actions CI). The workflow, README badge, `.github` OKF mappings, and Dependabot coverage for GitHub Actions were already implemented, so no extra CI changes were needed.
+- Added a GitHub Actions CI workflow for pushes to `main`, pull requests, and manual runs. It runs `make test`, Python compile checks, and the OKF stale-map check on Python 3.12. Added the README CI badge, Dependabot coverage for GitHub Actions versions, and proposed ADR 0004 to record the CI decision.
+- Added README badges for the MIT license, Python requirement, FastAPI stack, OKF documentation, and included specs/ADRs. The CI badge was added once a real workflow existed.
 - Pinned the existing Python dependency manifest to the versions already installed in the project virtual environment (`fastapi==0.139.0`, `uvicorn==0.51.0`, `httpx==0.28.1`, `pytest==9.1.1`) so installs are repeatable and Dependabot can propose explicit version bump pull requests. Updated ADR 0001 to record the pinned-manifest policy.
 - Added `.github/dependabot.yml` to check the root Python dependency manifest weekly and group available updates into one pull request. No runtime dependency, app behavior, or public API contract changed.
 - Added the MIT license for the repository (`LICENSE`) with 2026 Lila Brooks copyright, and linked it from the README. No app behavior or public API contract changed.

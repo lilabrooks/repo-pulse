@@ -1,5 +1,14 @@
 # Repo Pulse
 
+[![CI](https://github.com/lilabrooks/repo-pulse/actions/workflows/ci.yml/badge.svg)](https://github.com/lilabrooks/repo-pulse/actions/workflows/ci.yml)
+[![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](#requirements)
+[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](docs/adr/0001-python-web-stack.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+[![Claude Code](https://img.shields.io/badge/built%20with-Claude%20Code-5D3FD3)](CLAUDE.md)
+[![OKF](https://img.shields.io/badge/docs-OKF%200.1-blue)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+[![Specs + ADRs](https://img.shields.io/badge/specs%20%2B%20ADRs-included-00AA77)](docs/)
+
 Vital signs for any public GitHub repository. Enter `owner/repo` and get stars,
 open issues vs. open pull requests, the latest release, 30-day commit activity,
 and a computed pulse verdict — one page instead of six GitHub tabs.
@@ -43,6 +52,8 @@ make test
 
 The suite is fully offline: every GitHub interaction is mocked through
 `httpx.MockTransport`, so it passes with no network and no token.
+The same test, compile, and OKF mapping checks run in GitHub Actions on pushes
+to `main` and pull requests.
 
 ## Higher rate limits (optional)
 
@@ -104,3 +115,6 @@ with a clear message. Extending that to resolve arbitrary project homepages
 (e.g. a product landing page) to their repository is captured as a proposed,
 unimplemented scope change in
 [docs/adr/0003](docs/adr/0003-homepage-to-repo-resolution.md).
+
+Repo Pulse was built primarily with Claude Code. Codex assisted with licensing,
+dependency pinning, Dependabot, CI, badges, and repository metadata.
