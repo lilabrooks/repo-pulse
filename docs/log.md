@@ -2,6 +2,7 @@
 
 ## 2026-07-11
 
+- Added `.github/dependabot.yml` to check the root Python dependency manifest weekly and group available updates into one pull request. No runtime dependency, app behavior, or public API contract changed.
 - Added the MIT license for the repository (`LICENSE`) with 2026 Lila Brooks copyright, and linked it from the README. No app behavior or public API contract changed.
 
 ## 2026-07-09
