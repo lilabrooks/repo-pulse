@@ -2,6 +2,7 @@
 
 ## 2026-07-11
 
+- Pinned the existing Python dependency manifest to the versions already installed in the project virtual environment (`fastapi==0.139.0`, `uvicorn==0.51.0`, `httpx==0.28.1`, `pytest==9.1.1`) so installs are repeatable and Dependabot can propose explicit version bump pull requests. Updated ADR 0001 to record the pinned-manifest policy.
 - Added `.github/dependabot.yml` to check the root Python dependency manifest weekly and group available updates into one pull request. No runtime dependency, app behavior, or public API contract changed.
 - Added the MIT license for the repository (`LICENSE`) with 2026 Lila Brooks copyright, and linked it from the README. No app behavior or public API contract changed.
 

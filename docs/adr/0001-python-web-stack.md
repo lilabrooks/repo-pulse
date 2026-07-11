@@ -19,12 +19,14 @@ Repo Pulse needs a Python backend that serves a JSON API and static files, an HT
 
 # Decision
 
-Four dependencies, installed into a project-local `.venv` driven by `make`:
+Four pinned dependencies, installed into a project-local `.venv` driven by `make`:
 
-- **FastAPI** — the web framework. Declarative routes, automatic request validation for the `owner`/`repo` path params, and a built-in static-files mount cover everything the goal needs.
-- **uvicorn** — the ASGI server behind `make run`.
-- **httpx** — the HTTP client for GitHub calls. Its `MockTransport` lets the test suite exercise the real client code path with zero network, which the goal's offline-test criterion requires. Also used by FastAPI's `TestClient`.
-- **pytest** — test runner (dev dependency).
+- **FastAPI 0.139.0** — the web framework. Declarative routes, automatic request validation for the `owner`/`repo` path params, and a built-in static-files mount cover everything the goal needs.
+- **uvicorn 0.51.0** — the ASGI server behind `make run`.
+- **httpx 0.28.1** — the HTTP client for GitHub calls. Its `MockTransport` lets the test suite exercise the real client code path with zero network, which the goal's offline-test criterion requires. Also used by FastAPI's `TestClient`.
+- **pytest 9.1.1** — test runner (dev dependency).
+
+`requirements.txt` pins exact versions so clean installs are repeatable and Dependabot can propose explicit version bump pull requests.
 
 The frontend stays hand-written HTML/CSS/JS under `static/`, served by the backend; no build step, per the goal constraints.
 
@@ -35,4 +37,4 @@ Alternatives considered:
 
 # Consequences
 
-Four runtime/dev dependencies to keep current; `requirements.txt` is the single manifest. Tests and the app share the httpx client abstraction, so GitHub API behavior is testable offline. Rollback trigger: if the dependency surface causes install or maintenance pain, collapse to the stdlib fallback — the API contract in `docs/specs/api.md` is framework-neutral, so the swap stays contained.
+Four runtime/dev dependencies to keep current; `requirements.txt` is the single pinned manifest. Tests and the app share the httpx client abstraction, so GitHub API behavior is testable offline. Dependabot version updates should be reviewed as ordinary dependency changes and verified with the offline suite. Rollback trigger: if the dependency surface causes install or maintenance pain, collapse to the stdlib fallback — the API contract in `docs/specs/api.md` is framework-neutral, so the swap stays contained.
