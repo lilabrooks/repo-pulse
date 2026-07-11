@@ -10,7 +10,7 @@ deciders: [Lila Brooks]
 
 # Master objective
 
-Current state: Repo Pulse v1 is built and its goal is met: every milestone in `docs/GOAL.md` is checked and the success criteria pass. Three proposed ADRs await owner review (`bash scripts/okf pending`).
+Current state: Repo Pulse v1 is built and its goal is met: every milestone in `docs/GOAL.md` is checked and the success criteria pass. One proposed ADR — 0003, a scope change needing a `docs/GOAL.md` amendment — awaits owner review (`bash scripts/okf pending`).
 
 Target state: A Python backend serving a JSON API (`/api/health`, `/api/repo/{owner}/{repo}`) plus a static HTML/CSS/JS dashboard, consuming the GitHub REST API v3 with mocked-offline tests, an in-memory TTL cache, and optional `GITHUB_TOKEN` from the environment.
 

@@ -6,12 +6,12 @@ tags: [stack, dependencies, python]
 timestamp: 2026-07-09T00:00:00Z
 owner: Lila Brooks
 deciders: [Lila Brooks]
-status: proposed
+status: accepted
 ---
 
 # Status
 
-Proposed (authored by Claude Code per the decision policy; awaiting owner review)
+Accepted by Lila Brooks on 2026-07-11. Authored by Claude Code per the decision policy.
 
 # Context
 
